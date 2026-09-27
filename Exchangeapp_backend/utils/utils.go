@@ -13,13 +13,13 @@ func HashPassword(pwd string) (string, error) {
 	return string(hash), err
 }
 
-func GenerateJWT(username string) (string, error) {
+func GenerateJWT(username string, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Hour * 72).Unix(),
 	})
 
-	signedToken, err := token.SignedString([]byte("secret"))
+	signedToken, err := token.SignedString([]byte(secret))
 	return "Bearer " + signedToken, err
 }
 
@@ -28,7 +28,7 @@ func CheckPassword(password string, hash string) bool {
 	return err == nil
 }
 
-func ParseJWT(tokenString string) (string, error) {
+func ParseJWT(tokenString string, secret string) (string, error) {
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
 		tokenString = tokenString[7:]
 	}
@@ -37,7 +37,7 @@ func ParseJWT(tokenString string) (string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected Signing Method")
 		}
-		return []byte("secret"), nil
+		return []byte(secret), nil
 	})
 
 	if err != nil {

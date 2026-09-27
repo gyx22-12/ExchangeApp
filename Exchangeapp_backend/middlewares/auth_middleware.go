@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"exchangeapp/config"
 	"exchangeapp/utils"
 	"net/http"
 
@@ -15,7 +16,7 @@ func AuthMiddleWare() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-		username, err := utils.ParseJWT(token)
+		username, err := utils.ParseJWT(token, config.AppConfig.JWT.Secret)
 
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
