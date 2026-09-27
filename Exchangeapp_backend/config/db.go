@@ -2,6 +2,7 @@ package config
 
 import (
 	"exchangeapp/global"
+	"exchangeapp/models"
 	"log"
 	"time"
 
@@ -27,4 +28,9 @@ func initDB() {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	global.Db = db
+
+	// 启动时一次性迁移表结构，避免在请求处理里重复 AutoMigrate
+	if err := db.AutoMigrate(&models.Article{}, &models.User{}); err != nil {
+		log.Fatalf("Failed to migrate database, got error: %v", err)
+	}
 }
