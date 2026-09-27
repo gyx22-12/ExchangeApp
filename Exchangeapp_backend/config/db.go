@@ -30,7 +30,7 @@ func initDB() {
 	global.Db = db
 
 	// 启动时一次性迁移表结构，避免在请求处理里重复 AutoMigrate
-	if err := db.AutoMigrate(&models.Article{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Article{}, &models.User{}, &models.ExchangeRate{}); err != nil {
 		log.Fatalf("Failed to migrate database, got error: %v", err)
 	}
 }
