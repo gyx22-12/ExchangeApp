@@ -5,17 +5,27 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
 )
 
-// 没有防重复
+// 同一个用户只能点赞一次：用 Redis Set 记录赞过的用户，天然去重。
 func LikeArticle(ctx *gin.Context) {
 	articleID := ctx.Param("id")
+	username := ctx.GetString("username")
+	if username == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 
-	likeKey := "article:" + articleID + ":likes"
+	likeKey := "article:" + articleID + ":liked_users"
 
-	if err := global.RedisDB.Incr(likeKey).Err(); err != nil {
+	added, err := global.RedisDB.SAdd(likeKey, username).Result()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if added == 0 {
+		ctx.JSON(http.StatusConflict, gin.H{"message": "Already liked this article"})
 		return
 	}
 
@@ -24,17 +34,13 @@ func LikeArticle(ctx *gin.Context) {
 
 func GetArticleLikes(ctx *gin.Context) {
 	articleID := ctx.Param("id")
+	likeKey := "article:" + articleID + ":liked_users"
 
-	likeKey := "article:" + articleID + ":likes"
-
-	likes, err := global.RedisDB.Get(likeKey).Result()
-
-	if err == redis.Nil {
-		likes = "0"
-	} else if err != nil {
+	count, err := global.RedisDB.SCard(likeKey).Result()
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"likes": likes})
+	ctx.JSON(http.StatusOK, gin.H{"likes": count})
 }

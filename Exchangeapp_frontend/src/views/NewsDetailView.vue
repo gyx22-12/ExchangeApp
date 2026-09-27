@@ -15,8 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUpdated, onBeforeUpdate, onBeforeMount } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { ElMessage } from "element-plus";
 import axios from "../axios";
 import type { Article, Like } from "../types/Article";
 
@@ -37,11 +38,14 @@ const fetchArticle = async () => {
 
 const likeArticle = async () => {
   try {
-    const res = await axios.post<Like>(`articles/${id}/like`)
-    likes.value = res.data.likes
+    await axios.post(`articles/${id}/like`)
     await fetchLike()
-  } catch (error) {
-    console.log('Error Liking article:', error)
+  } catch (error: any) {
+    if (error?.response?.status === 409) {
+      ElMessage.warning("你已经点过赞了")
+    } else {
+      console.log("Error Liking article:", error)
+    }
   }
 };
 
@@ -50,7 +54,7 @@ const fetchLike = async ()=>{
     const res = await axios.get<Like>(`articles/${id}/like`)
     likes.value = res.data.likes
   }catch(error){
-    console.log('Error fetching likes:', error)
+    console.log("Error fetching likes:", error)
   }
 }
 
