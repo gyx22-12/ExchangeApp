@@ -1,0 +1,33 @@
+# ---- 前端（Node / Vite） ----
+node_modules/
+Exchangeapp_frontend/dist/
+Exchangeapp_frontend/.vite/
+
+# ---- Go 构建产物 ----
+Exchangeapp_backend/exchangeapp
+Exchangeapp_backend/exchangeapp.exe
+*.test
+*.out
+
+# ---- 编辑器 / IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+
+# ---- 日志 ----
+*.log
+
+# ---- 敏感配置 ----
+.env
+.env.*
+
+# ---- 真实凭据不入库（复制 config.yml.example 为 config.yml 并填入自己的值） ----
+Exchangeapp_backend/config/config.yml
+
+# ---- Volar 自动生成 ----
+__VLS_types.d.ts
