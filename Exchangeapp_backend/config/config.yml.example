@@ -11,3 +11,7 @@ redis:
   addr: localhost:6379
   DB: 0
   Password: ""
+
+jwt:
+  # 生产环境请用随机串（如 openssl rand -hex 32），或用 JWT_SECRET 环境变量覆盖
+  secret: your-secret-here
